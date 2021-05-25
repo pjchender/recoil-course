@@ -10,7 +10,7 @@ export type ElementStyle = {
 
 export type Element = {style: ElementStyle}
 
-const elementState = atomFamily<Element, number>({
+export const elementState = atomFamily<Element, number>({
     key: 'element',
     default: {
         style: {
