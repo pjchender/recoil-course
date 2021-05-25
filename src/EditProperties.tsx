@@ -1,70 +1,17 @@
 import {InputGroup, InputRightElement, NumberInput, NumberInputField, Text, VStack} from '@chakra-ui/react'
-import {selector, useRecoilState} from 'recoil'
-import {Element, elementState, selectedElementState} from './components/Rectangle/Rectangle'
 
-const selectedElementPropertiesSelector = selector<Element | undefined>({
-    key: 'selectedElementProperties',
-    get: ({get}) => {
-        const selectedElementId = get(selectedElementState)
-
-        if (selectedElementId === null) return
-
-        return get(elementState(selectedElementId))
-    },
-    set: ({set, get}, newElement) => {
-        const selectedElementId = get(selectedElementState)
-
-        if (selectedElementId === null) return
-        if (!newElement) return
-
-        set(elementState(selectedElementId), newElement)
-    },
-})
-
-type ElementProperty = 'top' | 'left' | 'width' | 'height'
 export const EditProperties = () => {
-    const [selectedElementProperties, setSelectedElementProperties] = useRecoilState(selectedElementPropertiesSelector)
-
-    if (!selectedElementProperties) return null
-
-    const setPosition = ({property, value}: {property: ElementProperty; value: number}) =>
-        setSelectedElementProperties(
-            (prevElement) =>
-                prevElement && {
-                    ...prevElement,
-                    style: {
-                        ...prevElement?.style,
-                        ...((property === 'top' || property === 'left') && {
-                            position: {
-                                ...prevElement?.style.position,
-                                [property]: value,
-                            },
-                        }),
-                        ...((property === 'width' || property === 'height') && {
-                            size: {
-                                ...prevElement?.style.size,
-                                [property]: value,
-                            },
-                        }),
-                    },
-                },
-        )
-
     return (
         <Card>
             <Section heading="Position">
-                <Property
-                    label="Top"
-                    value={selectedElementProperties.style.position.top}
-                    onChange={(top) => setPosition({property: 'top', value: top})}
-                />
-                <Property
+                <Property label="Top" value={1} onChange={(top) => {}} />
+                {/* <Property
                     label="Left"
                     value={selectedElementProperties.style.position.left}
                     onChange={(left) => setPosition({property: 'left', value: left})}
-                />
+                /> */}
             </Section>
-            <Section heading="Size">
+            {/* <Section heading="Size">
                 <Property
                     label="Width"
                     value={selectedElementProperties.style.size.width}
@@ -75,7 +22,7 @@ export const EditProperties = () => {
                     value={selectedElementProperties.style.size.height}
                     onChange={(height) => setPosition({property: 'height', value: height})}
                 />
-            </Section>
+            </Section> */}
         </Card>
     )
 }
