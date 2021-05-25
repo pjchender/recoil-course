@@ -1,5 +1,5 @@
 import {InputGroup, InputRightElement, NumberInput, NumberInputField, Text, VStack} from '@chakra-ui/react'
-import {selectorFamily, useRecoilState} from 'recoil'
+import {selectorFamily, useRecoilState, useRecoilValue} from 'recoil'
 import {elementStateFamily, selectedElementState} from './components/Rectangle/Rectangle'
 import {get as _get, set as _set} from 'lodash'
 import produce from 'immer'
@@ -34,24 +34,19 @@ const editPropertyState = selectorFamily<number | undefined, string>({
 })
 
 export const EditProperties = () => {
+    const selectedElementId = useRecoilValue(selectedElementState)
+    if (selectedElementId === null) return null
+
     return (
         <Card>
             <Section heading="Position">
                 <Property label="Top" path="style.position.top" />
                 <Property label="Left" path="style.position.left" />
             </Section>
-            {/* <Section heading="Size">
-                <Property
-                    label="Width"
-                    value={selectedElementProperties.style.size.width}
-                    onChange={(width) => setPosition({property: 'width', value: width})}
-                />
-                <Property
-                    label="Left"
-                    value={selectedElementProperties.style.size.height}
-                    onChange={(height) => setPosition({property: 'height', value: height})}
-                />
-            </Section> */}
+            <Section heading="Size">
+                <Property label="Width" path="style.size.width" />
+                <Property label="Height" path="style.size.height" />
+            </Section>
         </Card>
     )
 }
