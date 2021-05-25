@@ -1,7 +1,6 @@
 import {InputGroup, InputRightElement, NumberInput, NumberInputField, Text, VStack} from '@chakra-ui/react'
-import {selectorFamily, useRecoilState, useRecoilValue} from 'recoil'
-import {elementStateFamily, ElementStyle, selectedElementState} from './components/Rectangle/Rectangle'
-import {Element} from './components/Rectangle/Rectangle'
+import {selectorFamily, useRecoilState} from 'recoil'
+import {elementStateFamily, selectedElementState} from './components/Rectangle/Rectangle'
 import {get as _get, set as _set} from 'lodash'
 import produce from 'immer'
 
@@ -35,19 +34,11 @@ const editPropertyState = selectorFamily<number | undefined, string>({
 })
 
 export const EditProperties = () => {
-    const [top, setTop] = useRecoilState(editPropertyState('style.position.top'))
-
-    if (!top) return null
-
     return (
         <Card>
             <Section heading="Position">
-                <Property label="Top" value={top} onChange={(top) => setTop(top)} />
-                {/* <Property
-                    label="Left"
-                    value={selectedElementProperties.style.position.left}
-                    onChange={(left) => setPosition({property: 'left', value: left})}
-                /> */}
+                <Property label="Top" path="style.position.top" />
+                <Property label="Left" path="style.position.left" />
             </Section>
             {/* <Section heading="Size">
                 <Property
@@ -74,14 +65,18 @@ const Section: React.FC<{heading: string}> = ({heading, children}) => {
     )
 }
 
-const Property = ({label, value, onChange}: {label: string; value: number; onChange: (value: number) => void}) => {
+const Property = ({label, path}: {label: string; path: string}) => {
+    const [value, setValue] = useRecoilState(editPropertyState(path))
+
+    if (!value) return null
+
     return (
         <div>
             <Text fontSize="14px" fontWeight="500" mb="2px">
                 {label}
             </Text>
             <InputGroup size="sm" variant="filled">
-                <NumberInput value={value} onChange={(_, value) => onChange(value)}>
+                <NumberInput value={value} onChange={(_, value) => setValue(value)}>
                     <NumberInputField borderRadius="md" />
                     <InputRightElement pointerEvents="none" children="px" lineHeight="1" fontSize="12px" />
                 </NumberInput>
