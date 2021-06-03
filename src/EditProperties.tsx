@@ -4,13 +4,22 @@ import {elementStateFamily, selectedElementState} from './components/Rectangle/R
 import {get as _get, set as _set} from 'lodash'
 import produce from 'immer'
 
-const editPropertyState = selectorFamily<number, {path: string; id: number}>({
+type Size = {
+    width: number
+    height: number
+}
+type Position = {
+    top: number
+    left: number
+}
+
+export const editPropertyState = selectorFamily<number | Size | Position, {path: string; id: number}>({
     key: 'editProperty',
     get:
         ({path, id}) =>
         ({get}) => {
             const element = get(elementStateFamily(id))
-            return _get(element, path)
+            return _get(element, path) as number
         },
     set:
         ({path, id}) =>
@@ -57,6 +66,8 @@ const Property = ({label, path, id}: {label: string; path: string; id: number}) 
     const [value, setValue] = useRecoilState(editPropertyState({path, id}))
 
     if (!value) return null
+
+    if (typeof value !== 'number') return null
 
     return (
         <div>
