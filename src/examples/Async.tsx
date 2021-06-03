@@ -1,14 +1,30 @@
 import {Container, Heading, Text} from '@chakra-ui/layout'
 import {Select} from '@chakra-ui/select'
-import {atom, useRecoilState} from 'recoil'
+import {atom, selector, useRecoilState, useRecoilValue} from 'recoil'
 
 const userIdState = atom<number | undefined>({
     key: 'userId',
     default: undefined,
 })
 
+const userState = selector({
+    key: 'user',
+    get: async ({get}) => {
+        const userId = get(userIdState)
+        console.log({
+            userId,
+        })
+        if (userId === undefined) return
+
+        const res = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`)
+        const userData = await res.json()
+        return userData
+    },
+})
+
 export const Async = () => {
     const [userId, setUserId] = useRecoilState(userIdState)
+    const user = useRecoilValue(userState)
 
     return (
         <Container py={10}>
@@ -37,10 +53,10 @@ export const Async = () => {
                         User data:
                     </Heading>
                     <Text>
-                        <b>Name:</b> Example Value
+                        <b>Name:</b> {user.name}
                     </Text>
                     <Text>
-                        <b>Phone:</b> Example Value
+                        <b>Phone:</b> {user.phone}
                     </Text>
                 </div>
             )}
