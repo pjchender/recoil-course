@@ -1,5 +1,6 @@
 import {Container, Heading, Text} from '@chakra-ui/layout'
 import {Select} from '@chakra-ui/select'
+import {Suspense} from 'react'
 import {atom, selector, useRecoilState, useRecoilValue} from 'recoil'
 
 const userIdState = atom<number | undefined>({
@@ -22,9 +23,28 @@ const userState = selector({
     },
 })
 
+const UserData = () => {
+    const user = useRecoilValue(userState)
+
+    if (!user) return null
+
+    return (
+        <div>
+            <Heading as="h2" size="md" mb={1}>
+                User data:
+            </Heading>
+            <Text>
+                <b>Name:</b> {user.name}
+            </Text>
+            <Text>
+                <b>Phone:</b> {user.phone}
+            </Text>
+        </div>
+    )
+}
+
 export const Async = () => {
     const [userId, setUserId] = useRecoilState(userIdState)
-    const user = useRecoilValue(userState)
 
     return (
         <Container py={10}>
@@ -47,19 +67,9 @@ export const Async = () => {
                 <option value="2">User 2</option>
                 <option value="3">User 3</option>
             </Select>
-            {userId !== undefined && (
-                <div>
-                    <Heading as="h2" size="md" mb={1}>
-                        User data:
-                    </Heading>
-                    <Text>
-                        <b>Name:</b> {user.name}
-                    </Text>
-                    <Text>
-                        <b>Phone:</b> {user.phone}
-                    </Text>
-                </div>
-            )}
+            <Suspense fallback={<div>Loading...</div>}>
+                <UserData />
+            </Suspense>
         </Container>
     )
 }
