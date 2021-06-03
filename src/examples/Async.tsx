@@ -1,7 +1,7 @@
 import {Container, Heading, Text} from '@chakra-ui/layout'
 import {Select} from '@chakra-ui/select'
 import {Suspense, useState} from 'react'
-import {selectorFamily, useRecoilValue} from 'recoil'
+import {atomFamily, selectorFamily, useRecoilValue, useSetRecoilState} from 'recoil'
 import {getWeather} from './fakeAPI'
 
 const userState = selectorFamily({
@@ -13,11 +13,24 @@ const userState = selectorFamily({
     },
 })
 
+// 1. 建立 weatherRequestId
+const weatherRequestIdState = atomFamily({
+    key: 'weatherRequestId',
+    default: 0,
+})
+const useRefetchWeather = (userId: number) => {
+    const setRequestId = useSetRecoilState(weatherRequestIdState(userId))
+    return () => setRequestId((id) => id + 1)
+}
+
 const weatherState = selectorFamily({
     key: 'weather',
     get:
         (userId: number) =>
         async ({get}) => {
+            // 3. 由於 weatherState 相依於 weatherRequestId，因此一旦此值改變，recoil 就會再次執行此 selector 中的 get function
+            get(weatherRequestIdState(userId))
+
             const user = get(userState(userId)) // 這裡並不需要加上 await，recoil 會在取得 userState 後才接著執行這裡的 get function
             const weather = await getWeather(user.address.city)
             return weather
@@ -28,10 +41,16 @@ const WeatherDate = ({userId}: {userId: number}) => {
     const user = useRecoilValue(userState(userId))
     const weather = useRecoilValue(weatherState(userId))
 
+    // 2. 使用者呼叫此 function 時，weatherRequestId 會改變
+    const refetch = useRefetchWeather(userId)
+
     return (
-        <Text>
-            <b>Weather for {user.address.city}:</b> {weather}°C
-        </Text>
+        <div>
+            <Text>
+                <b>Weather for {user.address.city}:</b> {weather}°C
+            </Text>
+            <Text onClick={refetch}>(refresh weather)</Text>
+        </div>
     )
 }
 
