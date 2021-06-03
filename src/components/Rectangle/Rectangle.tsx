@@ -9,16 +9,18 @@ export type ElementStyle = {
     size: {width: number; height: number}
 }
 
-export type Element = {style: ElementStyle}
+export type Element = {style: ElementStyle; image?: {id: number; src: string}}
+
+export const defaultElement = {
+    style: {
+        position: {top: 0, left: 0},
+        size: {width: 50, height: 50},
+    },
+}
 
 export const elementStateFamily = atomFamily<Element, number>({
     key: 'element',
-    default: {
-        style: {
-            position: {top: 0, left: 0},
-            size: {width: 50, height: 50},
-        },
-    },
+    default: defaultElement,
 })
 
 export const selectedElementState = atom<number | null>({
@@ -54,16 +56,17 @@ export const Rectangle = ({id}: {id: number}) => {
                 <Drag
                     position={element.style.position}
                     onDrag={(position) => {
-                        setElement({
+                        setElement((prevElement) => ({
+                            ...prevElement,
                             style: {
                                 ...element.style,
                                 position,
                             },
-                        })
+                        }))
                     }}
                 >
                     <div>
-                        <RectangleInner selected={id === selectedElement} />
+                        <RectangleInner selected={id === selectedElement} id={id} />
                     </div>
                 </Drag>
             </Resize>
