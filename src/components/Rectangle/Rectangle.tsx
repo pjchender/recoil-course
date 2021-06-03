@@ -1,7 +1,9 @@
+import {Suspense} from 'react'
 import {useRecoilState, atomFamily, atom} from 'recoil'
 import {Drag} from '../Drag'
 import {Resize} from '../Resize'
 import {RectangleContainer} from './RectangleContainer'
+import {RectangleLoading} from './RectangleLoading';
 import {RectangleInner} from './RectangleInner'
 
 export type ElementStyle = {
@@ -66,7 +68,9 @@ export const Rectangle = ({id}: {id: number}) => {
                     }}
                 >
                     <div>
-                        <RectangleInner selected={id === selectedElement} id={id} />
+                        <Suspense fallback={<RectangleLoading selected={selected} />}>
+                            <RectangleInner selected={id === selectedElement} id={id} />
+                        </Suspense>
                     </div>
                 </Drag>
             </Resize>
