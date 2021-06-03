@@ -1,5 +1,6 @@
 import {Box} from '@chakra-ui/react'
-import {selectorFamily, useRecoilValue} from 'recoil'
+import {useEffect} from 'react'
+import {selectorFamily, useRecoilState, useRecoilValue} from 'recoil'
 import {getBorderColor, getImageDimensions} from '../../util'
 import {elementStateFamily} from './Rectangle'
 
@@ -13,8 +14,20 @@ const imageSizeState = selectorFamily({
 })
 
 export const RectangleInner = ({selected, id}: {selected: boolean; id: number}) => {
-    const element = useRecoilValue(elementStateFamily(id))
+    const [element, setElement] = useRecoilState(elementStateFamily(id))
     const imageSize = useRecoilValue(imageSizeState(element.image?.src))
+
+    useEffect(() => {
+        if (!imageSize) return
+
+        setElement((prevElement) => ({
+            ...prevElement,
+            style: {
+                ...prevElement.style,
+                size: imageSize,
+            },
+        }))
+    }, [imageSize])
 
     return (
         <Box
