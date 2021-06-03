@@ -24,9 +24,19 @@ const weatherState = selectorFamily({
         },
 })
 
-const UserData = ({userId}: {userId: number}) => {
+const WeatherDate = ({userId}: {userId: number}) => {
     const user = useRecoilValue(userState(userId))
     const weather = useRecoilValue(weatherState(userId))
+
+    return (
+        <Text>
+            <b>Weather for {user.address.city}:</b> {weather}°C
+        </Text>
+    )
+}
+
+const UserData = ({userId}: {userId: number}) => {
+    const user = useRecoilValue(userState(userId))
 
     return (
         <div>
@@ -36,14 +46,9 @@ const UserData = ({userId}: {userId: number}) => {
             <Text>
                 <b>Name:</b> {user.name}
             </Text>
-            <Text>
-                <b>Phone:</b> {user.phone}
-            </Text>
-            <Text>
-                <b>
-                    Weather for {user.address.city}: {weather}°C
-                </b>
-            </Text>
+            <Suspense fallback={<div>Loading weather...</div>}>
+                <WeatherDate userId={userId} />
+            </Suspense>
         </div>
     )
 }
