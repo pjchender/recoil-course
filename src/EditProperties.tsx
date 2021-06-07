@@ -1,8 +1,9 @@
 import {InputGroup, InputRightElement, NumberInput, NumberInputField, Text, VStack} from '@chakra-ui/react'
-import {selectorFamily, useRecoilState, useRecoilValue} from 'recoil'
+import {selector, selectorFamily, useRecoilState, useRecoilValue} from 'recoil'
 import {elementStateFamily, selectedElementState} from './components/Rectangle/Rectangle'
 import {get as _get, set as _set} from 'lodash'
 import produce from 'immer'
+import {ImageInfo} from './components/ImageInfo'
 
 type Size = {
     width: number
@@ -35,8 +36,21 @@ export const editPropertyState = selectorFamily<number | Size | Position, {path:
         },
 })
 
+const hasImageState = selector({
+    key: 'hasImage',
+    get: ({get}) => {
+        const elementId = get(selectedElementState)
+        if (elementId === null) return
+
+        const element = get(elementStateFamily(elementId))
+        return element.image !== undefined
+    },
+})
+
 export const EditProperties = () => {
     const selectedElementId = useRecoilValue(selectedElementState)
+    const hasImage = useRecoilValue(hasImageState)
+
     if (selectedElementId === null) return null
 
     return (
@@ -49,6 +63,11 @@ export const EditProperties = () => {
                 <Property label="Width" path="style.size.width" id={selectedElementId} />
                 <Property label="Height" path="style.size.height" id={selectedElementId} />
             </Section>
+            {hasImage && (
+                <Section heading="Image">
+                    <ImageInfo />
+                </Section>
+            )}
         </Card>
     )
 }
