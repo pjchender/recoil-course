@@ -3,7 +3,8 @@ import {selector, selectorFamily, useRecoilState, useRecoilValue} from 'recoil'
 import {elementStateFamily, selectedElementState} from './components/Rectangle/Rectangle'
 import {get as _get, set as _set} from 'lodash'
 import produce from 'immer'
-import {ImageInfo} from './components/ImageInfo'
+import {ImageInfo, ImageInfoFallback} from './components/ImageInfo'
+import {Suspense} from 'react'
 
 type Size = {
     width: number
@@ -65,7 +66,9 @@ export const EditProperties = () => {
             </Section>
             {hasImage && (
                 <Section heading="Image">
-                    <ImageInfo />
+                    <Suspense fallback={<ImageInfoFallback />}>
+                        <ImageInfo />
+                    </Suspense>
                 </Section>
             )}
         </Card>

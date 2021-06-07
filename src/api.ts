@@ -13,7 +13,7 @@ export const apiUrl = (lambda: string, queryParams?: ParsedUrlQueryInput) => {
     return url
 }
 
-export const callApi = (lambda: string, options?: RequestOptions) => {
+export const callApi = async <T>(lambda: string, options?: RequestOptions) => {
     const {queryParams, body, method} = options || {}
     const url = apiUrl(lambda, queryParams)
 
@@ -22,5 +22,8 @@ export const callApi = (lambda: string, options?: RequestOptions) => {
         bodyString = JSON.stringify(body)
     }
 
-    return fetch(url, {body: bodyString, method}).then((res) => res.json())
+    const res = await fetch(url, {body: bodyString, method})
+    const data: T = await res.json()
+
+    return data
 }
