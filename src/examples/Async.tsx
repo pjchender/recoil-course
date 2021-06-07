@@ -1,12 +1,15 @@
 import {Container, Heading, Text} from '@chakra-ui/layout'
+import {Button} from '@chakra-ui/react'
 import {Select} from '@chakra-ui/select'
 import {Suspense, useState} from 'react'
+import {ErrorBoundary, FallbackProps} from 'react-error-boundary'
 import {atomFamily, selectorFamily, useRecoilValue, useSetRecoilState} from 'recoil'
 import {getWeather} from './fakeAPI'
 
 const userState = selectorFamily({
     key: 'user',
     get: (userId: number) => async () => {
+        if (userId === 4) throw new Error()
         const res = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`)
         const userData = await res.json()
         return userData
@@ -72,6 +75,17 @@ const UserData = ({userId}: {userId: number}) => {
     )
 }
 
+const ErrorFallback = ({error, resetErrorBoundary}: FallbackProps) => {
+    return (
+        <div>
+            <Heading as="h2" size="md" mb={1}>
+                Something went wrong
+            </Heading>
+            <Text>{error.message}</Text>
+            <Button onClick={resetErrorBoundary}>OK</Button>
+        </div>
+    )
+}
 export const Async = () => {
     const [userId, setUserId] = useState<number>()
 
@@ -95,12 +109,19 @@ export const Async = () => {
                 <option value="1">User 1</option>
                 <option value="2">User 2</option>
                 <option value="3">User 3</option>
+                <option value="4">User 4</option>
             </Select>
             {userId !== undefined && (
                 // Suspense 會在 UserData 中的所有 data 都 resolve 後才解開
-                <Suspense fallback={<div>Loading...</div>}>
-                    <UserData userId={userId} />
-                </Suspense>
+                <ErrorBoundary
+                    FallbackComponent={ErrorFallback}
+                    onReset={() => setUserId(undefined)}
+                    resetKeys={[userId]}
+                >
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <UserData userId={userId} />
+                    </Suspense>
+                </ErrorBoundary>
             )}
         </Container>
     )
