@@ -14,8 +14,8 @@ type Position = {
     top: number
     left: number
 }
-
-export const editPropertyState = selectorFamily<number | Size | Position, {path: string; id: number}>({
+type EditPropertyType = number | Size | Position
+export const editPropertyState = selectorFamily<EditPropertyType, {path: string; id: number}>({
     key: 'editProperty',
     get:
         ({path, id}) =>
@@ -34,6 +34,45 @@ export const editPropertyState = selectorFamily<number | Size | Position, {path:
             })
 
             set(elementStateFamily(id), newElement)
+        },
+})
+
+type EditSizeType = {
+    dimension: 'width' | 'height'
+    id: number
+}
+
+function assertIsSize(editProperty: EditPropertyType): asserts editProperty is Size {
+    if (typeof editProperty === 'number') throw new Error('not Size type')
+    if ('top' in editProperty) throw new Error('not Size type')
+    if ('left' in editProperty) throw new Error('not Size type')
+}
+const editSize = selectorFamily<any, EditSizeType>({
+    key: 'editSize',
+    get:
+        ({dimension, id}) =>
+        ({get}) => {
+            return get(editPropertyState({path: `style.size.${dimension}`, id}))
+        },
+    set:
+        ({dimension, id}) =>
+        ({get, set}, newValue) => {
+            const size = editPropertyState({path: 'style.size', id})
+            const propertyState = get(size)
+            assertIsSize(propertyState)
+
+            const aspectRadio = propertyState.width / propertyState.height
+            if (dimension === 'width') {
+                set(size, {
+                    width: newValue,
+                    height: newValue / aspectRadio,
+                })
+            } else {
+                set(size, {
+                    width: newValue * aspectRadio,
+                    height: newValue,
+                })
+            }
         },
 })
 
