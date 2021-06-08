@@ -7,9 +7,10 @@ const handlePlacements: ResizeHandle[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 
 type ResizeProps = {
     selected: boolean
     onResize: (style: ElementStyle) => void
+    keepAspectRatio: boolean
 } & ElementStyle
 
-export const Resize: React.FC<ResizeProps> = ({selected, children, position, size, onResize}) => {
+export const Resize: React.FC<ResizeProps> = ({selected, children, position, size, onResize, keepAspectRatio}) => {
     return (
         <Resizable
             width={size.width}
@@ -42,6 +43,7 @@ export const Resize: React.FC<ResizeProps> = ({selected, children, position, siz
                     <Handle placement={placement} visible={selected} />
                 </div>
             )}
+            lockAspectRatio={keepAspectRatio}
         >
             <div>{children}</div>
         </Resizable>
